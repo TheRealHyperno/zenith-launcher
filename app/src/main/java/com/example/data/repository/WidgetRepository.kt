@@ -28,24 +28,31 @@ class WidgetRepository(private val dao: LauncherDao) {
             size = WidgetSize.STANDARD
         ),
         WidgetConfig(
+            id = "default_music",
+            type = WidgetType.MUSIC_PLAYER,
+            isEnabled = true,
+            sortOrder = 2,
+            size = WidgetSize.STANDARD
+        ),
+        WidgetConfig(
             id = "default_system_stats",
             type = WidgetType.SYSTEM_STATS,
             isEnabled = true,
-            sortOrder = 2,
+            sortOrder = 3,
             size = WidgetSize.STANDARD
         ),
         WidgetConfig(
             id = "default_quick_actions",
             type = WidgetType.QUICK_ACTIONS,
             isEnabled = true,
-            sortOrder = 3,
+            sortOrder = 4,
             size = WidgetSize.STANDARD
         ),
         WidgetConfig(
             id = "default_quick_note",
             type = WidgetType.QUICK_NOTE,
             isEnabled = false,
-            sortOrder = 4,
+            sortOrder = 5,
             size = WidgetSize.STANDARD
         )
     )

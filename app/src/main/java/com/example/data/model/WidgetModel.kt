@@ -17,6 +17,10 @@ enum class WidgetType(val id: String, val displayName: String, val description: 
     APP_CLUSTER("APP_CLUSTER", "App Cluster Dock", "Group 4 favorite apps in a compact mini-launch card", WidgetSize.STANDARD),
     CUSTOM_QUOTE("CUSTOM_QUOTE", "Daily Affirmation & Quote", "Inspirational reminder or custom motto for focus", WidgetSize.STANDARD),
     WEB_SHORTCUT("WEB_SHORTCUT", "Web Search & Bookmarks", "Direct search jump to Google, Reddit, GitHub or custom site", WidgetSize.COMPACT),
+    MUSIC_PLAYER("MUSIC_PLAYER", "Adaptive Music Player", "Android Quick Settings style media player for Spotify & active audio", WidgetSize.STANDARD),
+    WORLD_CLOCK("WORLD_CLOCK", "World Clock & Timezones", "Track multiple world timezones with day/night indicators", WidgetSize.STANDARD),
+    FITNESS_STEPS("FITNESS_STEPS", "Steps & Activity Tracker", "Daily step count, distance, active calories and progress goal", WidgetSize.STANDARD),
+    SCREEN_TIME("SCREEN_TIME", "Digital Wellbeing & Focus", "Daily screen time, unlock count, top apps and focus streak", WidgetSize.STANDARD),
     ANDROID_APPWIDGET("ANDROID_APPWIDGET", "Android App Widget", "Host widgets from installed apps like Spotify, Weather, Notes", WidgetSize.STANDARD)
 }
 

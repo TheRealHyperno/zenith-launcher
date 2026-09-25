@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        com.example.service.ZenithMediaManager.init(this)
 
         lifecycleScope.launch {
             viewModel.widgetHostRequest.collect { request ->

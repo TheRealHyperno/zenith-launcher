@@ -24,15 +24,20 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.EditNote
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.Launch
 import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.filled.Widgets
@@ -506,6 +511,10 @@ fun getWidgetIcon(type: WidgetType): ImageVector {
         WidgetType.APP_CLUSTER -> Icons.Default.GridView
         WidgetType.CUSTOM_QUOTE -> Icons.Default.FormatQuote
         WidgetType.WEB_SHORTCUT -> Icons.Default.Bookmark
+        WidgetType.MUSIC_PLAYER -> Icons.Default.GraphicEq
+        WidgetType.WORLD_CLOCK -> Icons.Default.Public
+        WidgetType.FITNESS_STEPS -> Icons.Default.DirectionsWalk
+        WidgetType.SCREEN_TIME -> Icons.Default.PhoneAndroid
         WidgetType.ANDROID_APPWIDGET -> Icons.Default.Widgets
     }
 }
@@ -522,6 +531,10 @@ fun getWidgetIconColor(type: WidgetType): Color {
         WidgetType.APP_CLUSTER -> Color(0xFF60A5FA)
         WidgetType.CUSTOM_QUOTE -> Color(0xFFFBBF24)
         WidgetType.WEB_SHORTCUT -> Color(0xFFF472B6)
+        WidgetType.MUSIC_PLAYER -> Color(0xFF1DB954)
+        WidgetType.WORLD_CLOCK -> Color(0xFF38BDF8)
+        WidgetType.FITNESS_STEPS -> Color(0xFF10B981)
+        WidgetType.SCREEN_TIME -> Color(0xFFA855F7)
         WidgetType.ANDROID_APPWIDGET -> Color(0xFF10B981)
     }
 }

@@ -78,10 +78,24 @@ class ExampleRobolectricTest {
         assertEquals(WidgetType.ANDROID_APPWIDGET, appWidgetConfig.type)
         assertEquals("Spotify - Now Playing", appWidgetConfig.title)
 
+        val musicWidgetConfig = WidgetConfig(
+            id = "w4",
+            type = WidgetType.MUSIC_PLAYER,
+            size = WidgetSize.STANDARD
+        )
+        assertEquals(WidgetType.MUSIC_PLAYER, musicWidgetConfig.type)
+        assertEquals("Adaptive Music Player", WidgetType.MUSIC_PLAYER.displayName)
+        assertNotNull(WidgetType.WORLD_CLOCK)
+        assertNotNull(WidgetType.FITNESS_STEPS)
+        assertNotNull(WidgetType.SCREEN_TIME)
+
         val defaultSettings = com.example.data.repository.LauncherSettingsState()
         assertEquals(false, defaultSettings.isPerformanceMode)
 
         val perfSettings = defaultSettings.copy(batterySaverMode = true)
         assertEquals(true, perfSettings.isPerformanceMode)
+
+        val defaultMediaTrack = com.example.service.ZenithMediaManager.mediaTrack.value
+        assertEquals("No track playing...", defaultMediaTrack.title)
     }
 }

@@ -53,6 +53,10 @@ import com.example.ui.components.AppIconView
 import com.example.ui.components.SearchBarView
 import com.example.ui.components.launcherDesktopGestures
 import com.example.ui.widgets.AdaptiveClockWidget
+import com.example.ui.widgets.AdaptiveFitnessWidget
+import com.example.ui.widgets.AdaptiveMusicWidget
+import com.example.ui.widgets.AdaptiveScreenTimeWidget
+import com.example.ui.widgets.AdaptiveWorldClockWidget
 import com.example.ui.widgets.AddWidgetSheet
 import com.example.ui.widgets.AndroidAppWidgetHostView
 import com.example.ui.widgets.AppClusterWidget
@@ -281,6 +285,18 @@ fun HomeScreen(
                             }
                             WidgetType.WEB_SHORTCUT -> {
                                 WebShortcutWidget(size = currentSize)
+                            }
+                            WidgetType.MUSIC_PLAYER -> {
+                                AdaptiveMusicWidget(size = currentSize)
+                            }
+                            WidgetType.WORLD_CLOCK -> {
+                                AdaptiveWorldClockWidget(size = currentSize)
+                            }
+                            WidgetType.FITNESS_STEPS -> {
+                                AdaptiveFitnessWidget(size = currentSize)
+                            }
+                            WidgetType.SCREEN_TIME -> {
+                                AdaptiveScreenTimeWidget(size = currentSize)
                             }
                             WidgetType.ANDROID_APPWIDGET -> {
                                 val parts = widget.customData.split("|")
