@@ -388,6 +388,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun updateBadgeStyle(style: BadgeStyle) = settingsRepository.updateBadgeStyle(style)
     fun updateHapticFeedback(enabled: Boolean) = settingsRepository.updateHapticFeedback(enabled)
     fun toggleBatterySaver(enabled: Boolean) = settingsRepository.toggleBatterySaverMode(enabled)
+    fun togglePerformanceMode(enabled: Boolean) = toggleBatterySaver(enabled)
     fun updateWidgetCornerRadius(radius: Int) = settingsRepository.updateWidgetCornerRadius(radius)
     fun updateWidgetOpacity(opacity: Float) = settingsRepository.updateWidgetOpacity(opacity)
 

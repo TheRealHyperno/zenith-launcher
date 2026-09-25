@@ -212,37 +212,38 @@ fun HomeScreen(
                         isEditMode = isEditMode,
                         cornerRadiusDp = settings.widgetCornerRadius,
                         opacity = settings.widgetOpacity,
+                        isPerformanceMode = settings.isPerformanceMode,
                         onResize = { newSize -> viewModel.updateWidgetSize(widget.id, newSize) },
                         onMoveUp = { viewModel.moveWidget(widget.id, -1) },
                         onMoveDown = { viewModel.moveWidget(widget.id, 1) },
                         onDelete = { viewModel.removeWidget(widget.id) },
                         onToggleEditMode = { viewModel.toggleWidgetEditMode() }
-                    ) {
+                    ) { currentSize ->
                         when (widget.type) {
                             WidgetType.CLOCK -> {
-                                AdaptiveClockWidget(size = widget.size)
+                                AdaptiveClockWidget(size = currentSize)
                             }
                             WidgetType.GLANCE -> {
-                                GlancePillWidget(size = widget.size)
+                                GlancePillWidget(size = currentSize)
                             }
                             WidgetType.SYSTEM_STATS -> {
-                                SystemStatsWidget(size = widget.size)
+                                SystemStatsWidget(size = currentSize)
                             }
                             WidgetType.QUICK_ACTIONS -> {
-                                QuickActionsWidget(size = widget.size)
+                                QuickActionsWidget(size = currentSize)
                             }
                             WidgetType.QUICK_NOTE -> {
                                 QuickNoteWidget(
                                     noteContent = quickNoteText,
                                     onNoteChange = { viewModel.saveQuickNote(it) },
-                                    size = widget.size
+                                    size = currentSize
                                 )
                             }
                             WidgetType.COUNTDOWN -> {
                                 CountdownWidget(
                                     title = widget.title,
                                     customData = widget.customData,
-                                    size = widget.size,
+                                    size = currentSize,
                                     onUpdateConfig = { title, data ->
                                         viewModel.updateWidgetConfig(widget.id, title, data)
                                     }
@@ -252,7 +253,7 @@ fun HomeScreen(
                                 HabitTrackerWidget(
                                     title = widget.title,
                                     customData = widget.customData,
-                                    size = widget.size,
+                                    size = currentSize,
                                     onUpdateConfig = { title, data ->
                                         viewModel.updateWidgetConfig(widget.id, title, data)
                                     }
@@ -264,7 +265,7 @@ fun HomeScreen(
                                     allApps = allApps,
                                     iconShape = settings.iconShape,
                                     iconThemeMode = settings.iconThemeMode,
-                                    size = widget.size,
+                                    size = currentSize,
                                     onAppClick = { viewModel.launchApp(it) }
                                 )
                             }
@@ -272,14 +273,14 @@ fun HomeScreen(
                                 CustomQuoteWidget(
                                     title = widget.title,
                                     customData = widget.customData,
-                                    size = widget.size,
+                                    size = currentSize,
                                     onUpdateConfig = { title, data ->
                                         viewModel.updateWidgetConfig(widget.id, title, data)
                                     }
                                 )
                             }
                             WidgetType.WEB_SHORTCUT -> {
-                                WebShortcutWidget(size = widget.size)
+                                WebShortcutWidget(size = currentSize)
                             }
                             WidgetType.ANDROID_APPWIDGET -> {
                                 val parts = widget.customData.split("|")
@@ -289,7 +290,8 @@ fun HomeScreen(
                                     AndroidAppWidgetHostView(
                                         appWidgetId = appWidgetId,
                                         componentNameString = comp,
-                                        size = widget.size
+                                        size = currentSize,
+                                        isPerformanceMode = settings.isPerformanceMode
                                     )
                                 }
                             }

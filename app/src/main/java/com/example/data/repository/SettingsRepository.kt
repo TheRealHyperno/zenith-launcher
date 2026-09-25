@@ -26,7 +26,9 @@ data class LauncherSettingsState(
     val batterySaverMode: Boolean = false,
     val widgetCornerRadius: Int = 20,
     val widgetOpacity: Float = 0.75f
-)
+) {
+    val isPerformanceMode: Boolean get() = batterySaverMode || animationSpeed == 0.0f
+}
 
 class SettingsRepository(context: Context) {
     private val prefs: SharedPreferences =

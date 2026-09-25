@@ -569,8 +569,8 @@ fun SettingsScreen(
                     )
 
                     SettingsSwitchRow(
-                        title = "Low-Power Minimal Mode",
-                        subtitle = "Disables heavy animations and lowers frame costs for maximum battery life on older hardware",
+                        title = "Performance Mode / Battery Saver",
+                        subtitle = "Disables fluid widget sizing animations and motion transitions for instantaneous static rendering and maximum battery life",
                         checked = settings.batterySaverMode,
                         onCheckedChange = { viewModel.toggleBatterySaver(it) }
                     )

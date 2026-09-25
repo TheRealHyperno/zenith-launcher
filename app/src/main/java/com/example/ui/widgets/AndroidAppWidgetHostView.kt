@@ -5,6 +5,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -41,6 +44,7 @@ fun AndroidAppWidgetHostView(
     appWidgetId: Int,
     componentNameString: String,
     size: WidgetSize = WidgetSize.STANDARD,
+    isPerformanceMode: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -51,10 +55,24 @@ fun AndroidAppWidgetHostView(
         mutableStateOf(manager.getAppWidgetInfo(appWidgetId))
     }
 
-    val widgetHeight = when (size) {
+    val targetHeight = when (size) {
         WidgetSize.COMPACT -> 120.dp
         WidgetSize.STANDARD -> 185.dp
         WidgetSize.EXPANDED -> 280.dp
+    }
+
+    val widgetHeight = if (isPerformanceMode) {
+        targetHeight
+    } else {
+        val animatedHeight by animateDpAsState(
+            targetValue = targetHeight,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessMediumLow
+            ),
+            label = "app_widget_height_$appWidgetId"
+        )
+        animatedHeight
     }
 
     LaunchedEffect(size, appWidgetId) {

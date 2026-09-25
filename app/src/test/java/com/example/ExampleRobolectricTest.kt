@@ -77,5 +77,11 @@ class ExampleRobolectricTest {
         )
         assertEquals(WidgetType.ANDROID_APPWIDGET, appWidgetConfig.type)
         assertEquals("Spotify - Now Playing", appWidgetConfig.title)
+
+        val defaultSettings = com.example.data.repository.LauncherSettingsState()
+        assertEquals(false, defaultSettings.isPerformanceMode)
+
+        val perfSettings = defaultSettings.copy(batterySaverMode = true)
+        assertEquals(true, perfSettings.isPerformanceMode)
     }
 }
