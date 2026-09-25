@@ -1,0 +1,6 @@
+{
+  "name": "Zenith Launcher",
+  "description": "Modern minimalist Android launcher with customizable gesture controls, adaptive widgets, icon packs, and battery-optimized performance.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
