@@ -67,5 +67,15 @@ class ExampleRobolectricTest {
             title = "Tokyo Vacation"
         )
         assertEquals("Tokyo Vacation", countdownConfig.title)
+
+        val appWidgetConfig = WidgetConfig(
+            id = "w3",
+            type = WidgetType.ANDROID_APPWIDGET,
+            size = WidgetSize.STANDARD,
+            title = "Spotify - Now Playing",
+            customData = "42|com.spotify.music/.widget.SpotifyWidgetProvider"
+        )
+        assertEquals(WidgetType.ANDROID_APPWIDGET, appWidgetConfig.type)
+        assertEquals("Spotify - Now Playing", appWidgetConfig.title)
     }
 }

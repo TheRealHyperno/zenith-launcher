@@ -102,6 +102,27 @@ class WidgetRepository(private val dao: LauncherDao) {
         return newId
     }
 
+    suspend fun addAndroidAppWidget(
+        appWidgetId: Int,
+        providerComponent: String,
+        title: String,
+        customData: String,
+        currentCount: Int
+    ): String {
+        val newId = "android_widget_${appWidgetId}"
+        val entity = WidgetInstanceEntity(
+            id = newId,
+            type = WidgetType.ANDROID_APPWIDGET.id,
+            isEnabled = true,
+            sortOrder = currentCount,
+            size = WidgetSize.STANDARD.name,
+            title = title,
+            customData = customData
+        )
+        dao.saveWidgetInstance(entity)
+        return newId
+    }
+
     suspend fun updateWidgetSize(id: String, newSize: WidgetSize) {
         dao.updateWidgetSize(id, newSize.name)
     }

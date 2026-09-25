@@ -16,7 +16,8 @@ enum class WidgetType(val id: String, val displayName: String, val description: 
     HABIT_TRACKER("HABIT_TRACKER", "Daily Habit Tracker", "Track daily goals and check them off directly on desktop", WidgetSize.STANDARD),
     APP_CLUSTER("APP_CLUSTER", "App Cluster Dock", "Group 4 favorite apps in a compact mini-launch card", WidgetSize.STANDARD),
     CUSTOM_QUOTE("CUSTOM_QUOTE", "Daily Affirmation & Quote", "Inspirational reminder or custom motto for focus", WidgetSize.STANDARD),
-    WEB_SHORTCUT("WEB_SHORTCUT", "Web Search & Bookmarks", "Direct search jump to Google, Reddit, GitHub or custom site", WidgetSize.COMPACT)
+    WEB_SHORTCUT("WEB_SHORTCUT", "Web Search & Bookmarks", "Direct search jump to Google, Reddit, GitHub or custom site", WidgetSize.COMPACT),
+    ANDROID_APPWIDGET("ANDROID_APPWIDGET", "Android App Widget", "Host widgets from installed apps like Spotify, Weather, Notes", WidgetSize.STANDARD)
 }
 
 data class WidgetConfig(

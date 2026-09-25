@@ -27,13 +27,20 @@ import com.example.data.repository.LauncherSettingsState
 import com.example.data.repository.SettingsRepository
 import com.example.data.repository.WidgetRepository
 import com.example.service.NotificationBadgeManager
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+sealed class WidgetHostRequest {
+    data class PickProvider(val providerInfo: android.appwidget.AppWidgetProviderInfo) : WidgetHostRequest()
+    object OpenSystemPicker : WidgetHostRequest()
+}
 
 enum class LauncherScreen {
     HOME,
@@ -80,6 +87,30 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     val quickNote: StateFlow<String> = widgetRepository.observeQuickNote()
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    private val _installedAppWidgets = MutableStateFlow<List<com.example.service.AppWithWidgets>>(emptyList())
+    val installedAppWidgets: StateFlow<List<com.example.service.AppWithWidgets>> = _installedAppWidgets.asStateFlow()
+
+    private val _widgetHostRequest = MutableSharedFlow<WidgetHostRequest>()
+    val widgetHostRequest = _widgetHostRequest.asSharedFlow()
+
+    fun loadInstalledAppWidgets() {
+        viewModelScope.launch {
+            _installedAppWidgets.value = com.example.service.AppWidgetHostManager.getInstalledWidgetsGrouped(getApplication())
+        }
+    }
+
+    fun requestAddSystemWidget(providerInfo: android.appwidget.AppWidgetProviderInfo) {
+        viewModelScope.launch {
+            _widgetHostRequest.emit(WidgetHostRequest.PickProvider(providerInfo))
+        }
+    }
+
+    fun requestOpenSystemWidgetPicker() {
+        viewModelScope.launch {
+            _widgetHostRequest.emit(WidgetHostRequest.OpenSystemPicker)
+        }
+    }
 
     val badgeCounts: StateFlow<Map<String, Int>> = NotificationBadgeManager.badgeCounts
 
@@ -228,6 +259,22 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    fun addAndroidAppWidget(appWidgetId: Int, providerInfo: android.appwidget.AppWidgetProviderInfo) {
+        viewModelScope.launch {
+            val pm = getApplication<Application>().packageManager
+            val label = providerInfo.loadLabel(pm).takeIf { it.isNotBlank() } ?: "App Widget"
+            val customData = "$appWidgetId|${providerInfo.provider.flattenToString()}"
+            widgetRepository.addAndroidAppWidget(
+                appWidgetId = appWidgetId,
+                providerComponent = providerInfo.provider.flattenToString(),
+                title = label.toString(),
+                customData = customData,
+                currentCount = widgets.value.size
+            )
+            _isWidgetEditMode.value = true
+        }
+    }
+
     fun updateWidgetSize(id: String, newSize: WidgetSize) {
         viewModelScope.launch {
             widgetRepository.updateWidgetSize(id, newSize)
@@ -236,6 +283,13 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun removeWidget(id: String) {
         viewModelScope.launch {
+            val widget = widgets.value.find { it.id == id }
+            if (widget?.type == WidgetType.ANDROID_APPWIDGET) {
+                val appWidgetId = widget.customData.split("|").firstOrNull()?.toIntOrNull()
+                if (appWidgetId != null) {
+                    com.example.service.AppWidgetHostManager.deleteWidgetId(getApplication(), appWidgetId)
+                }
+            }
             widgetRepository.removeWidget(id)
         }
     }

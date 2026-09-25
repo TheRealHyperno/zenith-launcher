@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,6 +54,7 @@ import com.example.ui.components.SearchBarView
 import com.example.ui.components.launcherDesktopGestures
 import com.example.ui.widgets.AdaptiveClockWidget
 import com.example.ui.widgets.AddWidgetSheet
+import com.example.ui.widgets.AndroidAppWidgetHostView
 import com.example.ui.widgets.AppClusterWidget
 import com.example.ui.widgets.CountdownWidget
 import com.example.ui.widgets.CustomQuoteWidget
@@ -80,6 +82,13 @@ fun HomeScreen(
     val quickNoteText by viewModel.quickNote.collectAsState()
     val isEditMode by viewModel.isWidgetEditMode.collectAsState()
     val showAddSheet by viewModel.showAddWidgetSheet.collectAsState()
+    val installedAppWidgets by viewModel.installedAppWidgets.collectAsState()
+
+    LaunchedEffect(showAddSheet) {
+        if (showAddSheet) {
+            viewModel.loadInstalledAppWidgets()
+        }
+    }
 
     Box(
         modifier = modifier
@@ -272,6 +281,18 @@ fun HomeScreen(
                             WidgetType.WEB_SHORTCUT -> {
                                 WebShortcutWidget(size = widget.size)
                             }
+                            WidgetType.ANDROID_APPWIDGET -> {
+                                val parts = widget.customData.split("|")
+                                val appWidgetId = parts.firstOrNull()?.toIntOrNull() ?: -1
+                                val comp = parts.getOrNull(1) ?: ""
+                                if (appWidgetId != -1) {
+                                    AndroidAppWidgetHostView(
+                                        appWidgetId = appWidgetId,
+                                        componentNameString = comp,
+                                        size = widget.size
+                                    )
+                                }
+                            }
                             else -> {}
                         }
                     }
@@ -367,8 +388,15 @@ fun HomeScreen(
         // Add Widget Catalog Bottom Sheet
         if (showAddSheet) {
             AddWidgetSheet(
+                installedAppWidgets = installedAppWidgets,
                 onDismiss = { viewModel.closeAddWidgetSheet() },
-                onAddWidget = { type -> viewModel.addNewWidget(type) }
+                onAddWidget = { type -> viewModel.addNewWidget(type) },
+                onSelectAppWidget = { providerInfo ->
+                    viewModel.requestAddSystemWidget(providerInfo)
+                },
+                onOpenSystemPicker = {
+                    viewModel.requestOpenSystemWidgetPicker()
+                }
             )
         }
     }
