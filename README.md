@@ -14,3 +14,5 @@ Features:
 
 Zenith additionally features a performance mode, so even your old Galaxy A03 can run it smoothly.
 So - What are you waiting for? Switch to Zenith Launcher now or never!
+
+Oh and, grab the latest release [here](https://github.com/TheRealHyperno/zenith-launcher/releases/latest)
