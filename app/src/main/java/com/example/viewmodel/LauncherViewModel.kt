@@ -19,6 +19,7 @@ import com.example.data.model.IconThemeMode
 import com.example.data.model.SearchBarPosition
 import com.example.data.model.ThemeStyle
 import com.example.data.model.WidgetConfig
+import com.example.data.model.WidgetSize
 import com.example.data.model.WidgetType
 import com.example.data.repository.AppRepository
 import com.example.data.repository.GestureRepository
@@ -63,11 +64,20 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     private val _selectedAppForMenu = MutableStateFlow<AppItem?>(null)
     val selectedAppForMenu: StateFlow<AppItem?> = _selectedAppForMenu.asStateFlow()
 
+    // Desktop Widget Customization Mode
+    private val _isWidgetEditMode = MutableStateFlow(false)
+    val isWidgetEditMode: StateFlow<Boolean> = _isWidgetEditMode.asStateFlow()
+
+    private val _showAddWidgetSheet = MutableStateFlow(false)
+    val showAddWidgetSheet: StateFlow<Boolean> = _showAddWidgetSheet.asStateFlow()
+
     val settings: StateFlow<LauncherSettingsState> = settingsRepository.settings
     val gestures: StateFlow<Map<GestureTrigger, GestureBinding>> = gestureRepository.observeGestures()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyMap())
-    val widgets: StateFlow<List<WidgetConfig>> = widgetRepository.observeWidgets()
+
+    val widgets: StateFlow<List<WidgetConfig>> = widgetRepository.observeWidgetInstances()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val quickNote: StateFlow<String> = widgetRepository.observeQuickNote()
         .stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
@@ -154,7 +164,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             appRepository.recordLaunch(app.packageName)
         }
         appRepository.launchApp(app)
-        // Auto return to home screen
         if (_currentScreen.value == LauncherScreen.DRAWER) {
             _currentScreen.value = LauncherScreen.HOME
             _searchQuery.value = ""
@@ -199,6 +208,50 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    // Widget Customizer Controls
+    fun toggleWidgetEditMode() {
+        _isWidgetEditMode.value = !_isWidgetEditMode.value
+    }
+
+    fun openAddWidgetSheet() {
+        _showAddWidgetSheet.value = true
+    }
+
+    fun closeAddWidgetSheet() {
+        _showAddWidgetSheet.value = false
+    }
+
+    fun addNewWidget(type: WidgetType) {
+        viewModelScope.launch {
+            widgetRepository.addWidget(type, widgets.value.size)
+            _isWidgetEditMode.value = true
+        }
+    }
+
+    fun updateWidgetSize(id: String, newSize: WidgetSize) {
+        viewModelScope.launch {
+            widgetRepository.updateWidgetSize(id, newSize)
+        }
+    }
+
+    fun removeWidget(id: String) {
+        viewModelScope.launch {
+            widgetRepository.removeWidget(id)
+        }
+    }
+
+    fun moveWidget(id: String, direction: Int) {
+        viewModelScope.launch {
+            widgetRepository.moveWidget(id, direction, widgets.value)
+        }
+    }
+
+    fun updateWidgetConfig(id: String, title: String, customData: String) {
+        viewModelScope.launch {
+            widgetRepository.updateWidgetCustomData(id, title, customData)
+        }
+    }
+
     // Gesture Execution
     fun handleGestureTrigger(trigger: GestureTrigger, context: Context) {
         val binding = gestures.value[trigger] ?: return
@@ -233,7 +286,6 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             GestureAction.LOCK_SCREEN -> {
-                // Informative action or lock intent
                 openDeviceLockOrDisplaySettings(context)
             }
             GestureAction.NONE -> {}
@@ -282,16 +334,12 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     fun updateBadgeStyle(style: BadgeStyle) = settingsRepository.updateBadgeStyle(style)
     fun updateHapticFeedback(enabled: Boolean) = settingsRepository.updateHapticFeedback(enabled)
     fun toggleBatterySaver(enabled: Boolean) = settingsRepository.toggleBatterySaverMode(enabled)
+    fun updateWidgetCornerRadius(radius: Int) = settingsRepository.updateWidgetCornerRadius(radius)
+    fun updateWidgetOpacity(opacity: Float) = settingsRepository.updateWidgetOpacity(opacity)
 
     fun updateGestureBinding(trigger: GestureTrigger, action: GestureAction, targetPackage: String? = null) {
         viewModelScope.launch {
             gestureRepository.updateGesture(trigger, action, targetPackage)
-        }
-    }
-
-    fun toggleWidget(type: WidgetType, enabled: Boolean) {
-        viewModelScope.launch {
-            widgetRepository.toggleWidget(type, enabled)
         }
     }
 }

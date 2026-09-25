@@ -11,9 +11,11 @@ import com.example.data.local.AppConfigEntity
 import com.example.data.local.LauncherDao
 import com.example.data.model.AppCategory
 import com.example.data.model.AppItem
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class AppRepository(
@@ -52,6 +54,15 @@ class AppRepository(
                 initializeDefaultDock(mergedApps)
             }
 
+            // Pre-warm icon cache in background for smooth 120fps scrolling
+            kotlinx.coroutines.CoroutineScope(Dispatchers.IO).launch {
+                for (app in mergedApps) {
+                    if (IconCacheManager.getFromCache(app.packageName) == null) {
+                        IconCacheManager.getAppIcon(context, app.packageName)
+                    }
+                }
+            }
+
             mergedApps.sortedBy { it.displayName.lowercase() }
         }
     }
@@ -77,11 +88,14 @@ class AppRepository(
 
         val resolveInfos = pm.queryIntentActivities(mainIntent, 0)
         val result = mutableListOf<AppItem>()
+        val seenPackages = mutableSetOf<String>()
 
         for (resolveInfo in resolveInfos) {
             val pkg = resolveInfo.activityInfo.packageName
             // Don't list our own launcher in the app drawer list
             if (pkg == context.packageName) continue
+            // Ensure each package is added once to prevent duplicate keys in Compose LazyGrid
+            if (!seenPackages.add(pkg)) continue
 
             val label = resolveInfo.loadLabel(pm).toString()
             val activityName = resolveInfo.activityInfo.name
@@ -102,7 +116,7 @@ class AppRepository(
         if (result.size < 6) {
             val mocks = getCuratedSampleApps(pm)
             for (mock in mocks) {
-                if (result.none { it.packageName == mock.packageName }) {
+                if (seenPackages.add(mock.packageName)) {
                     result.add(mock)
                 }
             }

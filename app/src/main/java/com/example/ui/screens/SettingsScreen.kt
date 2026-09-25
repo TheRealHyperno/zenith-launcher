@@ -483,20 +483,74 @@ fun SettingsScreen(
                 }
             }
 
-            // SECTION: Adaptive Desktop Widgets
+            // SECTION: Adaptive Desktop Widgets & Customization
             item {
                 SettingsSection(
-                    title = "Adaptive Widgets",
+                    title = "Desktop Widgets & Styling",
                     icon = Icons.Default.Widgets
                 ) {
-                    WidgetType.entries.forEach { type ->
-                        val isEnabled = widgets.any { it.type == type && it.isEnabled }
-                        SettingsSwitchRow(
-                            title = type.displayName,
-                            subtitle = type.description,
-                            checked = isEnabled,
-                            onCheckedChange = { viewModel.toggleWidget(type, it) }
-                        )
+                    Text(
+                        text = "Customize corner radius, transparency, and manage home screen widgets",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(bottom = 10.dp)
+                    )
+
+                    // Widget Corner Radius
+                    Text(
+                        text = "Widget Corner Radius",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        listOf(8, 16, 20, 28).forEach { radius ->
+                            FilterChip(
+                                selected = settings.widgetCornerRadius == radius,
+                                onClick = { viewModel.updateWidgetCornerRadius(radius) },
+                                label = { Text("${radius}dp", fontSize = 12.sp) }
+                            )
+                        }
+                    }
+
+                    // Widget Background Opacity
+                    Text(
+                        text = "Widget Background Opacity",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(bottom = 14.dp)
+                    ) {
+                        listOf(0.40f to "40%", 0.65f to "65%", 0.75f to "75%", 0.95f to "95%").forEach { (opacityVal, label) ->
+                            FilterChip(
+                                selected = kotlin.math.abs(settings.widgetOpacity - opacityVal) < 0.05f,
+                                onClick = { viewModel.updateWidgetOpacity(opacityVal) },
+                                label = { Text(label, fontSize = 12.sp) }
+                            )
+                        }
+                    }
+
+                    Button(
+                        onClick = {
+                            viewModel.navigateTo(LauncherScreen.HOME)
+                            viewModel.toggleWidgetEditMode()
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Customize & Resize Widgets on Home Screen", fontWeight = FontWeight.Bold)
                     }
                 }
             }

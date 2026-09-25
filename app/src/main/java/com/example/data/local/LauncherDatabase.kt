@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         AppConfigEntity::class,
         GestureConfigEntity::class,
         WidgetConfigEntity::class,
+        WidgetInstanceEntity::class,
         QuickNoteEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class LauncherDatabase : RoomDatabase() {
@@ -28,7 +29,7 @@ abstract class LauncherDatabase : RoomDatabase() {
                     context.applicationContext,
                     LauncherDatabase::class.java,
                     "zenith_launcher.db"
-                ).fallbackToDestructiveMigration(false).build()
+                ).fallbackToDestructiveMigration(true).build()
                 INSTANCE = instance
                 instance
             }

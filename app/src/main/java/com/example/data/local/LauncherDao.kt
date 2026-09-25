@@ -43,15 +43,34 @@ interface LauncherDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveGestures(gestures: List<GestureConfigEntity>)
 
-    // Widgets
+    // Widget Configs (Legacy)
     @Query("SELECT * FROM widget_configs ORDER BY sortOrder ASC")
     fun getAllWidgets(): Flow<List<WidgetConfigEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveWidgetConfig(widget: WidgetConfigEntity)
 
+    // Widget Instances (Modern customizable & resizable widgets)
+    @Query("SELECT * FROM widget_instances ORDER BY sortOrder ASC")
+    fun getAllWidgetInstances(): Flow<List<WidgetInstanceEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveWidgetConfigs(widgets: List<WidgetConfigEntity>)
+    suspend fun saveWidgetInstance(instance: WidgetInstanceEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveWidgetInstances(instances: List<WidgetInstanceEntity>)
+
+    @Query("DELETE FROM widget_instances WHERE id = :id")
+    suspend fun deleteWidgetInstance(id: String)
+
+    @Query("UPDATE widget_instances SET size = :size WHERE id = :id")
+    suspend fun updateWidgetSize(id: String, size: String)
+
+    @Query("UPDATE widget_instances SET sortOrder = :sortOrder WHERE id = :id")
+    suspend fun updateWidgetOrder(id: String, sortOrder: Int)
+
+    @Query("UPDATE widget_instances SET customData = :customData, title = :title WHERE id = :id")
+    suspend fun updateWidgetCustomData(id: String, title: String, customData: String)
 
     // Quick Note
     @Query("SELECT * FROM quick_notes WHERE id = 1 LIMIT 1")

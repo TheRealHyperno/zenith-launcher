@@ -23,7 +23,9 @@ data class LauncherSettingsState(
     val searchBarPosition: SearchBarPosition = SearchBarPosition.BOTTOM,
     val badgeStyle: BadgeStyle = BadgeStyle.DOT,
     val hapticFeedback: Boolean = true,
-    val batterySaverMode: Boolean = false
+    val batterySaverMode: Boolean = false,
+    val widgetCornerRadius: Int = 20,
+    val widgetOpacity: Float = 0.75f
 )
 
 class SettingsRepository(context: Context) {
@@ -52,7 +54,9 @@ class SettingsRepository(context: Context) {
             searchBarPosition = try { SearchBarPosition.valueOf(searchPosName) } catch (_: Exception) { SearchBarPosition.BOTTOM },
             badgeStyle = try { BadgeStyle.valueOf(badgeStyleName) } catch (_: Exception) { BadgeStyle.DOT },
             hapticFeedback = prefs.getBoolean("haptic_feedback", true),
-            batterySaverMode = prefs.getBoolean("battery_saver_mode", false)
+            batterySaverMode = prefs.getBoolean("battery_saver_mode", false),
+            widgetCornerRadius = prefs.getInt("widget_corner_radius", 20),
+            widgetOpacity = prefs.getFloat("widget_opacity", 0.75f)
         )
     }
 
@@ -109,6 +113,16 @@ class SettingsRepository(context: Context) {
     fun updateHapticFeedback(enabled: Boolean) {
         prefs.edit().putBoolean("haptic_feedback", enabled).apply()
         _settings.value = _settings.value.copy(hapticFeedback = enabled)
+    }
+
+    fun updateWidgetCornerRadius(radius: Int) {
+        prefs.edit().putInt("widget_corner_radius", radius).apply()
+        _settings.value = _settings.value.copy(widgetCornerRadius = radius)
+    }
+
+    fun updateWidgetOpacity(opacity: Float) {
+        prefs.edit().putFloat("widget_opacity", opacity).apply()
+        _settings.value = _settings.value.copy(widgetOpacity = opacity)
     }
 
     fun toggleBatterySaverMode(enabled: Boolean) {

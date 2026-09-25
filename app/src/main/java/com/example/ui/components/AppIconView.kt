@@ -60,9 +60,12 @@ fun AppIconView(
         mutableStateOf(IconCacheManager.getFromCache(app.packageName))
     }
 
-    LaunchedEffect(app.packageName) {
-        if (iconBitmap == null) {
-            iconBitmap = IconCacheManager.getAppIcon(context, app.packageName)
+    if (iconBitmap == null) {
+        LaunchedEffect(app.packageName) {
+            val loaded = IconCacheManager.getAppIcon(context, app.packageName)
+            if (loaded != null) {
+                iconBitmap = loaded
+            }
         }
     }
 

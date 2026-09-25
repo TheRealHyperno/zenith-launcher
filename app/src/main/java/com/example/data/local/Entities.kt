@@ -29,10 +29,22 @@ data class GestureConfigEntity(
 @Entity(tableName = "widget_configs")
 data class WidgetConfigEntity(
     @PrimaryKey
-    val widgetId: String, // "CLOCK", "GLANCE", "SYSTEM_STATS", "QUICK_ACTIONS", "QUICK_NOTE"
+    val widgetId: String,
     val isEnabled: Boolean = true,
     val sortOrder: Int = 0,
     val styleType: String = "DEFAULT"
+)
+
+@Entity(tableName = "widget_instances")
+data class WidgetInstanceEntity(
+    @PrimaryKey
+    val id: String,
+    val type: String,
+    val isEnabled: Boolean = true,
+    val sortOrder: Int = 0,
+    val size: String = "STANDARD", // "COMPACT", "STANDARD", "EXPANDED"
+    val title: String = "",
+    val customData: String = ""
 )
 
 @Entity(tableName = "quick_notes")

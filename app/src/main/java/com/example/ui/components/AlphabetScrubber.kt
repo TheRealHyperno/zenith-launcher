@@ -38,6 +38,7 @@ fun AlphabetScrubber(
     val view = LocalView.current
     var columnHeight by remember { mutableStateOf(1) }
     var lastVibratedChar by remember { mutableStateOf<Char?>(null) }
+    var lastSelectedChar by remember { mutableStateOf<Char?>(null) }
 
     Box(
         modifier = modifier
@@ -51,20 +52,34 @@ fun AlphabetScrubber(
             .pointerInput(letters) {
                 detectVerticalDragGestures(
                     onDragStart = { offset ->
-                        val itemHeight = columnHeight.toFloat() / letters.size
+                        val itemHeight = (columnHeight.toFloat() / letters.size).coerceAtLeast(1f)
                         val index = (offset.y / itemHeight).toInt().coerceIn(0, letters.size - 1)
                         val char = letters[index]
-                        onLetterSelected(char)
+                        if (char != lastSelectedChar) {
+                            lastSelectedChar = char
+                            onLetterSelected(char)
+                        }
                         if (char != lastVibratedChar) {
                             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                             lastVibratedChar = char
                         }
                     },
+                    onDragEnd = {
+                        lastSelectedChar = null
+                        lastVibratedChar = null
+                    },
+                    onDragCancel = {
+                        lastSelectedChar = null
+                        lastVibratedChar = null
+                    },
                     onVerticalDrag = { change, _ ->
-                        val itemHeight = columnHeight.toFloat() / letters.size
+                        val itemHeight = (columnHeight.toFloat() / letters.size).coerceAtLeast(1f)
                         val index = (change.position.y / itemHeight).toInt().coerceIn(0, letters.size - 1)
                         val char = letters[index]
-                        onLetterSelected(char)
+                        if (char != lastSelectedChar) {
+                            lastSelectedChar = char
+                            onLetterSelected(char)
+                        }
                         if (char != lastVibratedChar) {
                             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
                             lastVibratedChar = char

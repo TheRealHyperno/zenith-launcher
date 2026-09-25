@@ -2,6 +2,7 @@ package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,15 +15,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.AppItem
@@ -46,10 +52,17 @@ import com.example.ui.components.AppIconView
 import com.example.ui.components.SearchBarView
 import com.example.ui.components.launcherDesktopGestures
 import com.example.ui.widgets.AdaptiveClockWidget
+import com.example.ui.widgets.AddWidgetSheet
+import com.example.ui.widgets.AppClusterWidget
+import com.example.ui.widgets.CountdownWidget
+import com.example.ui.widgets.CustomQuoteWidget
 import com.example.ui.widgets.GlancePillWidget
+import com.example.ui.widgets.HabitTrackerWidget
 import com.example.ui.widgets.QuickActionsWidget
 import com.example.ui.widgets.QuickNoteWidget
 import com.example.ui.widgets.SystemStatsWidget
+import com.example.ui.widgets.WebShortcutWidget
+import com.example.ui.widgets.WidgetContainer
 import com.example.viewmodel.LauncherScreen
 import com.example.viewmodel.LauncherViewModel
 
@@ -61,22 +74,21 @@ fun HomeScreen(
     val context = LocalContext.current
     val settings by viewModel.settings.collectAsState()
     val pinnedApps by viewModel.pinnedHomeApps.collectAsState()
+    val allApps by viewModel.allApps.collectAsState()
     val dockApps by viewModel.dockApps.collectAsState()
     val widgets by viewModel.widgets.collectAsState()
     val quickNoteText by viewModel.quickNote.collectAsState()
-
-    val isClockEnabled = widgets.any { it.type == WidgetType.CLOCK && it.isEnabled }
-    val isGlanceEnabled = widgets.any { it.type == WidgetType.GLANCE && it.isEnabled }
-    val isSystemStatsEnabled = widgets.any { it.type == WidgetType.SYSTEM_STATS && it.isEnabled }
-    val isQuickActionsEnabled = widgets.any { it.type == WidgetType.QUICK_ACTIONS && it.isEnabled }
-    val isQuickNoteEnabled = widgets.any { it.type == WidgetType.QUICK_NOTE && it.isEnabled }
+    val isEditMode by viewModel.isWidgetEditMode.collectAsState()
+    val showAddSheet by viewModel.showAddWidgetSheet.collectAsState()
 
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(settings.themeStyle.backgroundColor)
             .launcherDesktopGestures { trigger ->
-                viewModel.handleGestureTrigger(trigger, context)
+                if (!isEditMode) {
+                    viewModel.handleGestureTrigger(trigger, context)
+                }
             }
     ) {
         Column(
@@ -84,24 +96,81 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            // Top Bar with settings quick shortcut
+            // Top Bar with Widget Edit Toggle & Settings
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp, bottom = 4.dp),
-                horizontalArrangement = Arrangement.End,
+                    .padding(top = 8.dp, bottom = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(
-                    onClick = { viewModel.navigateTo(LauncherScreen.SETTINGS) },
-                    modifier = Modifier.size(36.dp).testTag("settings_button")
+                // Widget Customizer pill button
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = if (isEditMode) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    modifier = Modifier.clickable { viewModel.toggleWidgetEditMode() }
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Launcher Settings",
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (isEditMode) Icons.Default.Check else Icons.Default.Tune,
+                            contentDescription = "Customize Widgets",
+                            tint = if (isEditMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isEditMode) "Done Editing" else "Customize",
+                            fontSize = 12.sp,
+                            fontWeight = if (isEditMode) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isEditMode) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isEditMode) {
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .clickable { viewModel.openAddWidgetSheet() }
+                                .padding(end = 8.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add Widget",
+                                    tint = Color.Black,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "Add Widget",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Black
+                                )
+                            }
+                        }
+                    }
+
+                    IconButton(
+                        onClick = { viewModel.navigateTo(LauncherScreen.SETTINGS) },
+                        modifier = Modifier.size(36.dp).testTag("settings_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Launcher Settings",
+                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
 
@@ -124,41 +193,126 @@ fun HomeScreen(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // Adaptive Clock Widget
-                if (isClockEnabled) {
-                    item(key = "widget_clock") {
-                        AdaptiveClockWidget()
+                // Dynamic Adaptive & Custom Widgets
+                items(
+                    items = widgets.filter { it.isEnabled },
+                    key = { it.id }
+                ) { widget ->
+                    WidgetContainer(
+                        widget = widget,
+                        isEditMode = isEditMode,
+                        cornerRadiusDp = settings.widgetCornerRadius,
+                        opacity = settings.widgetOpacity,
+                        onResize = { newSize -> viewModel.updateWidgetSize(widget.id, newSize) },
+                        onMoveUp = { viewModel.moveWidget(widget.id, -1) },
+                        onMoveDown = { viewModel.moveWidget(widget.id, 1) },
+                        onDelete = { viewModel.removeWidget(widget.id) },
+                        onToggleEditMode = { viewModel.toggleWidgetEditMode() }
+                    ) {
+                        when (widget.type) {
+                            WidgetType.CLOCK -> {
+                                AdaptiveClockWidget(size = widget.size)
+                            }
+                            WidgetType.GLANCE -> {
+                                GlancePillWidget(size = widget.size)
+                            }
+                            WidgetType.SYSTEM_STATS -> {
+                                SystemStatsWidget(size = widget.size)
+                            }
+                            WidgetType.QUICK_ACTIONS -> {
+                                QuickActionsWidget(size = widget.size)
+                            }
+                            WidgetType.QUICK_NOTE -> {
+                                QuickNoteWidget(
+                                    noteContent = quickNoteText,
+                                    onNoteChange = { viewModel.saveQuickNote(it) },
+                                    size = widget.size
+                                )
+                            }
+                            WidgetType.COUNTDOWN -> {
+                                CountdownWidget(
+                                    title = widget.title,
+                                    customData = widget.customData,
+                                    size = widget.size,
+                                    onUpdateConfig = { title, data ->
+                                        viewModel.updateWidgetConfig(widget.id, title, data)
+                                    }
+                                )
+                            }
+                            WidgetType.HABIT_TRACKER -> {
+                                HabitTrackerWidget(
+                                    title = widget.title,
+                                    customData = widget.customData,
+                                    size = widget.size,
+                                    onUpdateConfig = { title, data ->
+                                        viewModel.updateWidgetConfig(widget.id, title, data)
+                                    }
+                                )
+                            }
+                            WidgetType.APP_CLUSTER -> {
+                                AppClusterWidget(
+                                    title = widget.title,
+                                    allApps = allApps,
+                                    iconShape = settings.iconShape,
+                                    iconThemeMode = settings.iconThemeMode,
+                                    size = widget.size,
+                                    onAppClick = { viewModel.launchApp(it) }
+                                )
+                            }
+                            WidgetType.CUSTOM_QUOTE -> {
+                                CustomQuoteWidget(
+                                    title = widget.title,
+                                    customData = widget.customData,
+                                    size = widget.size,
+                                    onUpdateConfig = { title, data ->
+                                        viewModel.updateWidgetConfig(widget.id, title, data)
+                                    }
+                                )
+                            }
+                            WidgetType.WEB_SHORTCUT -> {
+                                WebShortcutWidget(size = widget.size)
+                            }
+                            else -> {}
+                        }
                     }
                 }
 
-                // Glance Pill Widget
-                if (isGlanceEnabled) {
-                    item(key = "widget_glance") {
-                        GlancePillWidget()
-                    }
-                }
-
-                // System Stats Widget
-                if (isSystemStatsEnabled) {
-                    item(key = "widget_system_stats") {
-                        SystemStatsWidget()
-                    }
-                }
-
-                // Quick Actions Widget
-                if (isQuickActionsEnabled) {
-                    item(key = "widget_quick_actions") {
-                        QuickActionsWidget()
-                    }
-                }
-
-                // Quick Note Widget
-                if (isQuickNoteEnabled) {
-                    item(key = "widget_quick_note") {
-                        QuickNoteWidget(
-                            noteContent = quickNoteText,
-                            onNoteChange = { viewModel.saveQuickNote(it) }
-                        )
+                // Add Widget Button when in Edit Mode or if widgets list is empty
+                if (isEditMode || widgets.none { it.isEnabled }) {
+                    item(key = "add_widget_card") {
+                        Surface(
+                            shape = RoundedCornerShape(settings.widgetCornerRadius.dp),
+                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { viewModel.openAddWidgetSheet() }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 14.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Add Another Widget",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
                     }
                 }
 
@@ -209,6 +363,14 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
         }
+
+        // Add Widget Catalog Bottom Sheet
+        if (showAddSheet) {
+            AddWidgetSheet(
+                onDismiss = { viewModel.closeAddWidgetSheet() },
+                onAddWidget = { type -> viewModel.addNewWidget(type) }
+            )
+        }
     }
 }
 
@@ -221,7 +383,6 @@ fun DesktopGrid(
 ) {
     val settings by viewModel.settings.collectAsState()
 
-    // Fixed height grid or wrapped row arrangement for LazyColumn compatibility
     val rows = apps.chunked(columns)
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -246,7 +407,6 @@ fun DesktopGrid(
                         onLongClick = { viewModel.openAppMenu(app) }
                     )
                 }
-                // Fill remaining spaces in row
                 val emptySlots = columns - rowApps.size
                 if (emptySlots > 0) {
                     repeat(emptySlots) {
