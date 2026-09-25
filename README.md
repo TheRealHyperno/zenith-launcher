@@ -12,5 +12,5 @@ Features:
 - Rapid speeds
 - And more!
 
-Zenith additionally features a performance mode, so even your old Galaxy A03 can run it without lagging from a warranty claim ad by some guy named Craig.
-So - What are you waiting for? Switch to Zenith Launcher now!
+Zenith additionally features a performance mode, so even your old Galaxy A03 can run it smoothly.
+So - What are you waiting for? Switch to Zenith Launcher now or never!
